@@ -11,7 +11,7 @@
 	<dependency id="cordova-plugin-file-transfer" version="0.4.8" />
 	<dependency id="cordova-plugin-network-information" version="0.2.14" />
 
-	<js-module src="www/downloader.js" name="downloader">
+	<js-module src="www/uploader.js" name="uploader">
 		<clobbers target="uploader" />
 	</js-module>
 </plugin>
