@@ -1,0 +1,1 @@
+参考 https://github.com/huatech2016/cordova-plugin-fastrde-downloader 下载 做的上传
