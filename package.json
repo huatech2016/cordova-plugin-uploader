@@ -1,0 +1,28 @@
+{
+  "name": "cordova-plugin--uploader",
+  "version": "0.0.1",
+  "description": "Upload file (For Android and iOS)",
+  "cordova": {
+    "id": "cordova-plugin-uploader",
+    "platforms": [
+      "android",
+      "ios"
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/huatech2016/cordova-plugin-uploader.git"
+  },
+  "keywords": [
+    "cordova",
+    "ecosystem:cordova",
+    "cordova-android",
+    "cordova-ios",
+		"file",
+		"upload",
+		"uploader",
+		"multiple"
+  ],
+  "author": "hua",
+  "license": "MIT"
+}

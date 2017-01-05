@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin xmlns="http://apache.org/cordova/ns/plugins/1.0" id="cordova-plugin-upload" version="0.2.1">
+	<name>Uploader</name>
+	<author>hua</author>
+	<description>Upload files  (For Android and iOS)</description>
+	<license>MIT</license>
+	<keywords>file,upload,checksum,upload</keywords>
+	<repo>https://github.com/huatech2016/cordova-plugin-uploader.git</repo>
+	<issue>https://github.com/huatech2016/cordova-plugin-uploader/issues</issue>
+	<dependency id="cordova-plugin-file" version="1.0.1" />
+	<dependency id="cordova-plugin-file-transfer" version="0.4.8" />
+	<dependency id="cordova-plugin-network-information" version="0.2.14" />
+
+	<js-module src="www/downloader.js" name="downloader">
+		<clobbers target="uploader" />
+	</js-module>
+</plugin>
