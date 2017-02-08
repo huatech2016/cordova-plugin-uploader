@@ -33,38 +33,10 @@ var Uploader = {
         if (typeof options.fileSystem != 'undefined') {
             Uploader.fileSystemURL = options.fileSystem;
         }
-
         document.addEventListener("uploaderUploadError", Uploader.onUploaderror, false);
-        //document.addEventListener("uploadergotFileSystem", Uploader.onGotFileSystem, false);
-        //document.addEventListener("uploadergotFolder", Uploader.onGotFolder, false);
         document.addEventListener("uploaderUploadloadSuccess", Uploader.onUploadloadSuccess, false);
-        //document.addEventListener("uploaderunzipSuccess", Uploader.onUnzipSuccess, false);
-        //document.addEventListener("uploaderfileCheckSuccess", Uploader.onCheckSuccess, false);
-
-        checkIfFileExists(options.fileURL);
-
-        function checkIfFileExists(path){
-            window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, function(fileSystem){
-                fileSystem.root.getFile(path, { create: false }, fileExists, fileDoesNotExist);
-            }, getFSFail); //of requestFileSystem
-        }
-        function fileExists(fileEntry){
-            console.log("File " + fileEntry.fullPath + " exists!");
-            Uploader.initialized = true;
-            document.dispatchEvent(createEvent("uploaderInitialized"));
-            //文件存在开始下载
-        }
-        function fileDoesNotExist(){
-            console.log("file does not exist");
-            document.dispatchEvent(createEvent("uploaderInitialError"));
-            //文件存在
-        }
-        function getFSFail(evt) {
-            console.log(evt.target.error.code);
-            document.dispatchEvent(createEvent("uploaderInitialError"));
 
 
-        }
 
 
     },
@@ -76,6 +48,7 @@ var Uploader = {
             options: options
         };
         Uploader.uploadQueue.push(fileObject);
+
         if (!Uploader.isLoading()) {
             Uploader.upLoadNextInQueue();
         }
@@ -120,13 +93,13 @@ var Uploader = {
 
         Uploader.transfer.upload(fileObject.fileURL, fileObject.server,
             function (entry) {
-                // console.log("uploadFile, succcess file name: " + Uploader.fileObjectInProgress.name);
-                document.dispatchEvent(createEvent("uploaderUploadloadSuccess"));
-            },
+            // console.log("uploadFile, succcess file name: " + Uploader.fileObjectInProgress.name);
+            document.dispatchEvent(createEvent("uploaderUploadloadSuccess"));
+        },
             function (error) {
-                // console.log("uploadFile, error file name: " + Uploader.fileObjectInProgress.name);
-                document.dispatchEvent(createEvent("uploaderUploadError"));
-            },
+            // console.log("uploadFile, error file name: " + Uploader.fileObjectInProgress.name);
+            document.dispatchEvent(createEvent("uploaderUploadError"));
+        },
             fileObject.options    );
     },
 
@@ -150,14 +123,6 @@ var Uploader = {
         return Uploader.loading;
     },
 
-
-    /**
-     * returns true if Uploader is initialized, false otherwise
-     * @returns {boolean}
-     */
-    isInitialized: function () {
-        return Uploader.initialized;
-    },
 
     /**
      * returns true if wifiOnly is set
@@ -278,42 +243,6 @@ var Uploader = {
         }
     },
 
-
-    /**
-     * @param {Object} event
-     */
-    // onCheckSuccess: function (event) {
-    //     //var md5 = /** @type {String} */ event.data[0];
-    //     var fileName = /** @type {String} */ event.data[1];
-    //
-    //
-    // },
-
-    /**
-     * @param {Object} event
-     */
-    // onGotFileSystem: function (event) {
-    //     event.target.removeEventListener(event.name, Uploader.onGotFileSystem);
-    //     var fileSystem = /** @type {cordova-plugin-file.File.FileSystem} */ event.data[0];
-    //     Uploader.fileSystem = fileSystem;
-    //     Uploader.getFolder(fileSystem, Uploader.localFolder);
-    // },
-
-    /**
-     * @param {Object} event
-     * @param {cordova-plugin-file.FileEntry} folder
-     */
-    // onGotFolder: function (event) {
-    //     //console.log("onGotFolder");
-    //     event.target.removeEventListener(event.name, Uploader.onGotFolder);
-    //     var folder = /** @type {cordova-plugin-file.FileEntry} */ event.data[0];
-    //     Uploader.localFolder = folder;
-    //     Uploader.initialized = true;
-    //
-    //     //console.log("initialized " + Uploader.localFolder.toURL());
-    //     document.dispatchEvent(createEvent("uploaderinitialized"));
-    // },
-
     /*************************************************************** API */
 
     interface: {
@@ -367,26 +296,45 @@ var Uploader = {
        * }
          * @param {Array.<UploadloadObject>} list
          */
-        getMultipleFiles: function (list) {
+        uploadMultipleFiles: function (list) {
             if (Uploader.isWifiOnly() && !Uploader.isWifiConnection()) {
                 document.dispatchEvent(createEvent("uploadernoWifiConnection"));
                 return;
             }
             for (var i = 0; i < list.length; i++) {
                 var fileObject = list[i];
-                Uploader.load(fileObject.url, fileObject.md5);
+                //上传文件前要确认路径是否真实有效
+                Uploader.load(fileObject);
+               // beforeUpload(fileObject);
+
             }
+            //检查文件路径的，弃用，在filetransfer 的faiil callback 里处理
+            // function beforeUpload(fileObject){
+            //     window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, function(fileSystem){
+            //         fileSystem.root.getFile(path, { create: false }, fileExists, fileDoesNotExist);
+            //     }, getFSFail);
+            //     function fileExists(fileEntry){
+            //         console.log("File " + fileEntry.fullPath + " exists!");
+            //         Uploader.load(fileObject);
+            //     }
+            //     function fileDoesNotExist(){
+            //         console.log("file does not exist");
+            //         document.dispatchEvent(createEvent("fileCheckFail"));
+            //     }
+            //     function getFSFail(evt) {
+            //         console.log(evt.target.error.code);
+            //         document.dispatchEvent(createEvent("fileCheckFail"));
+            //     }
+            // }
+
         },
         abort: function () {
             Uploader.abort();
         },
-        isInitialized: function () {
-            return Uploader.isInitialized();
-        },
+
         setWifiOnly: function (wifionly) {
             Uploader.setWifiOnly(wifionly);
         }
-
     }
 };
 
