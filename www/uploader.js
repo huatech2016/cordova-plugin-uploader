@@ -315,3 +315,4 @@
         }
     };
 
+module.exports = Downloader.interface;
