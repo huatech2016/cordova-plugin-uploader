@@ -315,4 +315,4 @@
         }
     };
 
-module.exports = Downloader.interface;
+ module.exports = Uploader.interface;
