@@ -40,12 +40,11 @@ var Uploader = {
 
 
     },
-    load: function (fileURL, server, options) {
-        //var fileName = fileName || null;
+    load: function (fileObject) {
         var fileObject = {
-            fileURL: fileURL,
-            server: server,
-            options: options
+            fileURL: fileObject.fileURL,
+            server: fileObject.server,
+            options: fileObject.options
         };
         Uploader.uploadQueue.push(fileObject);
 
