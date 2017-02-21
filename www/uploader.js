@@ -34,18 +34,15 @@
             if (typeof options.fileSystem != 'undefined') {
                 Uploader.fileSystemURL = options.fileSystem;
             }
-            document.addEventListener("uploaderUploadError", Uploader.onUploaderror, false);
-            document.addEventListener("uploaderUploadSuccess", Uploader.onUploadloadSuccess, false);
-
-
-
+            document.addEventListener("uploadSingleError", Uploader.onUploaderror, false);
+            document.addEventListener("uploadSingleSuccess", Uploader.onUploadloadSuccess, false);
 
         },
-        load: function (fileObject) {
+        load: function (fileURL,server,options) {
             var fileObject = {
-                fileURL: fileObject.fileURL,
-                server: fileObject.server,
-                options: fileObject.options
+                fileURL: fileURL,
+                server: server,
+                options: options
             };
             Uploader.uploadQueue.push(fileObject);
 
@@ -70,9 +67,9 @@
         upLoadNextInQueue: function () {
             if (Uploader.uploadQueue.length > 0) {
                 Uploader.loading = true;
-                fileObject = Uploader.uploadQueue.shift();
+                var fileObject = Uploader.uploadQueue.shift();
                 Uploader.fileObjectInProgress = fileObject;
-                Uploader.uploadFile(fileObject);
+                Uploader.transferFile(fileObject);
                 return true;
             }
             return false;
@@ -82,25 +79,27 @@
         /**
          * @param {FileObject} fileObject
          */
-        uploadFile: function (fileObject) {
+        transferFile: function (fileObject) {
             Uploader.transfer = new FileTransfer();
             Uploader.transfer.onprogress = function (progressEvent) {
                 if (progressEvent.lengthComputable) {
                     var percentage = Math.floor(progressEvent.loaded / progressEvent.total * 100);
-                    document.dispatchEvent(createEvent("uploaderUploadProgress", [percentage, fileObject.options.fileName]));
+                    document.dispatchEvent(createEvent("uploadSingleProgress", [percentage, fileObject.options.fileName]));
                 }
             };
 
-            Uploader.transfer.upload(fileObject.fileURL, fileObject.server,
+            Uploader.transfer.upload(fileObject.fileURL,
+
+                encodeURI(fileObject.server),
                 function (entry) {
-                    // console.log("uploadFile, succcess file name: " + Uploader.fileObjectInProgress.name);
-                    document.dispatchEvent(createEvent("uploaderUploadSuccess"));
+                    // console.log("transferFile, succcess file name: " + Uploader.fileObjectInProgress.name);
+                    document.dispatchEvent(createEvent("uploadSingleSuccess"));
                 },
                 function (error) {
-                    // console.log("uploadFile, error file name: " + Uploader.fileObjectInProgress.name);
-                    document.dispatchEvent(createEvent("uploaderUploadError"));
+                    // console.log("transferFile, error file name: " + Uploader.fileObjectInProgress.name);
+                    document.dispatchEvent(createEvent("uploadSingleError"));
                 },
-                fileObject.options    );
+                fileObject.options);
         },
 
 
@@ -230,13 +229,13 @@
         onUploaderror: function (event) {
             if (Uploader.retry > 0) {
                 // console.log("onUploaderror, retry: " + Uploader.retry);
-                Uploader.uploadFile(Uploader.fileObjectInProgress);
+                Uploader.transferFile(Uploader.fileObjectInProgress);
                 Uploader.retry--;
             } else {
                 Uploader.reset();
                 //console.log("onUploaderror remove listener");
-                document.removeEventListener("uploaderUploadError", Uploader.onUploaderror, false);
-                document.removeEventListener("uploaderUploadSuccess", Uploader.onUploadloadSuccess, false);            }
+                document.removeEventListener("uploadSingleError", Uploader.onUploaderror, false);
+                document.removeEventListener("uploadSingleSuccess", Uploader.onUploadloadSuccess, false);            }
         },
 
         /*************************************************************** API */
@@ -244,9 +243,9 @@
         interface: {
             obj: null,
 
-           
+
             init: function (options) {
-                
+
                 options = options || {};
                 Uploader.initialize(options);
                 Uploader.interface.obj = Uploader;
@@ -254,7 +253,7 @@
 
 
             get: function (fileURL, server, options) {
-                
+
                 if (!fileURL) {
                     console.error("You have to specify fileURL url where the file is located you wanna Uploadload");
                     return;
@@ -305,6 +304,15 @@
                 // }
 
             },
+
+            uploadSingleFile: function (list) {
+                if (Uploader.isWifiOnly() && !Uploader.isWifiConnection()) {
+                    document.dispatchEvent(createEvent("uploadernoWifiConnection"));
+                    return;
+                }
+                Uploader.load(fileObject);
+
+            },
             abort: function () {
                 Uploader.abort();
             },
@@ -315,4 +323,4 @@
         }
     };
 
- module.exports = Uploader.interface;
+    module.exports = Uploader.interface;
