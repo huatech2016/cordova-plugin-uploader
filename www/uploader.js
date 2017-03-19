@@ -1,4 +1,3 @@
-
 function createEvent(name, data) {
     data = data || [];
     var event = document.createEvent("Event");
@@ -24,7 +23,7 @@ var Uploader = {
     unzipping: false,
     initialized: false,
     transfer: null,
-    retry: 1,
+    retry: 0,
     initialize: function (options) {
         //Uploader.setFolder(options.folder);
         if (typeof options.wifiOnly != 'undefined') {
@@ -38,7 +37,7 @@ var Uploader = {
         document.addEventListener("uploadSingleSuccess", Uploader.onUploadloadSuccess, false);
 
     },
-    load: function (fileURL,server,options) {
+    load: function (fileURL, server, options) {
         var fileObject = {
             fileURL: fileURL,
             server: server,
@@ -89,13 +88,12 @@ var Uploader = {
         };
 
         Uploader.transfer.upload(fileObject.fileURL,
-
             encodeURI(fileObject.server),
             function (entry) {
-                document.dispatchEvent(createEvent("uploadSingleSuccess",[entry]));
+                document.dispatchEvent(createEvent("uploadSingleSuccess",[entry.response]));
             },
             function (error) {
-                document.dispatchEvent(createEvent("uploadSingleError",[error]));
+                document.dispatchEvent(createEvent("uploadSingleError",[error.code]));
             },
             fileObject.options);
     },
@@ -168,7 +166,7 @@ var Uploader = {
 
         Uploader.initialized = false;
         Uploader.loading = false;
-        Uploader.retry = 1;
+        Uploader.retry = 0;
     },
 
     /*************************************************************** getter */
@@ -233,7 +231,8 @@ var Uploader = {
             Uploader.reset();
             //console.log("onUploaderror remove listener");
             document.removeEventListener("uploadSingleError", Uploader.onUploaderror, false);
-            document.removeEventListener("uploadSingleSuccess", Uploader.onUploadloadSuccess, false);            }
+            document.removeEventListener("uploadSingleSuccess", Uploader.onUploadloadSuccess, false);
+        }
     },
 
     /*************************************************************** API */
@@ -277,38 +276,16 @@ var Uploader = {
             }
             for (var i = 0; i < list.length; i++) {
                 var fileObject = list[i];
-                //上传文件前要确认路径是否真实有效
                 Uploader.load(fileObject);
-                // beforeUpload(fileObject);
-
             }
-            //检查文件路径的，弃用，在filetransfer 的faiil callback 里处理
-            // function beforeUpload(fileObject){
-            //     window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, function(fileSystem){
-            //         fileSystem.root.getFile(path, { create: false }, fileExists, fileDoesNotExist);
-            //     }, getFSFail);
-            //     function fileExists(fileEntry){
-            //         console.log("File " + fileEntry.fullPath + " exists!");
-            //         Uploader.load(fileObject);
-            //     }
-            //     function fileDoesNotExist(){
-            //         console.log("file does not exist");
-            //         document.dispatchEvent(createEvent("fileCheckFail"));
-            //     }
-            //     function getFSFail(evt) {
-            //         console.log(evt.target.error.code);
-            //         document.dispatchEvent(createEvent("fileCheckFail"));
-            //     }
-            // }
-
         },
 
-        uploadSingleFile: function (list) {
+        uploadSingleFile: function (fileURL, server, options) {
             if (Uploader.isWifiOnly() && !Uploader.isWifiConnection()) {
                 document.dispatchEvent(createEvent("uploadernoWifiConnection"));
                 return;
             }
-            Uploader.load(fileObject);
+            Uploader.load(fileURL, server, options);
 
         },
         abort: function () {
