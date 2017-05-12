@@ -90,7 +90,7 @@ var Uploader = {
         Uploader.transfer.upload(fileObject.fileURL,
             encodeURI(fileObject.server),
             function (entry) {
-                document.dispatchEvent(createEvent("uploadSingleSuccess",[entry.response]));
+                document.dispatchEvent(createEvent("uploadSingleSuccess",[fileObject.options.fileName]));
             },
             function (error) {
                 document.dispatchEvent(createEvent("uploadSingleError",[error.code]));
