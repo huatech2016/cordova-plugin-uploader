@@ -90,10 +90,10 @@ var Uploader = {
         Uploader.transfer.upload(fileObject.fileURL,
             encodeURI(fileObject.server),
             function (entry) {
-                document.dispatchEvent(createEvent("uploadSingleSuccess",[fileObject.options.fileName]));
+                document.dispatchEvent(createEvent("uploadSingleSuccess", [entry.response]));
             },
             function (error) {
-                document.dispatchEvent(createEvent("uploadSingleError",[error.code]));
+                document.dispatchEvent(createEvent("uploadSingleError", [error.code]));
             },
             fileObject.options);
     },
@@ -299,3 +299,5 @@ var Uploader = {
 };
 
 module.exports = Uploader.interface;
+
+
