@@ -1,3 +1,4 @@
+cordova.define("cordova-plugin-upload.uploader", function(require, exports, module) {
 function createEvent(name, data) {
     data = data || [];
     var event = document.createEvent("Event");
@@ -90,7 +91,7 @@ var Uploader = {
         Uploader.transfer.upload(fileObject.fileURL,
             encodeURI(fileObject.server),
             function (entry) {
-                document.dispatchEvent(createEvent("uploadSingleSuccess", [entry.response]));
+                document.dispatchEvent(createEvent("uploadSingleSuccess", [fileObject.options.fileName,entry.response]));
             },
             function (error) {
                 document.dispatchEvent(createEvent("uploadSingleError", [error.code]));
@@ -301,3 +302,5 @@ var Uploader = {
 module.exports = Uploader.interface;
 
 
+
+});
